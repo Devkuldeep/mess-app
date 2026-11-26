@@ -10,7 +10,13 @@ export const metadata: Metadata = {
   description: "Tiffin & mess management — count, delivery, payments.",
   applicationName: "Mess Manager",
   appleWebApp: { capable: true, title: "Mess", statusBarStyle: "default" },
-  icons: { icon: "/icons/icon.svg", apple: "/icons/apple-touch-icon.png" },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "16x16 32x32 48x48 64x64" },
+      { url: "/icons/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
+    apple: "/icons/apple-touch-icon.png",
+  },
   formatDetection: { telephone: false },
 };
 

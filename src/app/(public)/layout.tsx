@@ -9,7 +9,7 @@ export default function PublicLayout({ children }: LayoutProps<"/">) {
         <div className="mx-auto flex min-h-14 max-w-2xl items-center gap-3 px-4">
           <Link href="/" className="flex items-center gap-2 font-semibold">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/icon.svg" alt="" width={32} height={32} className="rounded-lg" />
+            <img src="/icons/logo.png" alt="" width={32} height={32} />
             Mess Manager
           </Link>
           <span className="flex-1" />
