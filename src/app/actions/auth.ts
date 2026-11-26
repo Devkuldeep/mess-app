@@ -5,32 +5,28 @@ import { db } from "@/server/db";
 import { createSession, destroySession, requireUser } from "@/server/auth";
 import { hashPassword, verifyPassword } from "@/server/password";
 import { normalizePhone, SLUG_RE, slugify } from "@/lib/links";
-import { isLang, LANG_COOKIE, type Dict } from "@/lib/i18n";
+import { isLang, LANG_COOKIE } from "@/lib/i18n";
+import { fieldError, loginSchema, orgSetupSchema, parseForm, signupSchema, type FormState } from "@/lib/validation";
 import { Prisma } from "@/generated/prisma/client";
 import { DEFAULT_DISHES } from "@/lib/wastage";
 import { TERMS_VERSION } from "@/lib/business";
 
-export type FormState = { error?: keyof Dict; ok?: boolean } | undefined;
-
-const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
+export type { FormState } from "@/lib/validation";
 
 export async function signup(_: FormState, fd: FormData): Promise<FormState> {
-  const name = str(fd, "name").slice(0, 80);
-  const phone = normalizePhone(str(fd, "phone"));
-  const password = String(fd.get("password") ?? "");
-  if (!phone) return { error: "invalidPhone" };
-  if (password.length < 8) return { error: "passwordShort" };
-  if (fd.get("consent") !== "on") return { error: "consentRequired" };
+  const parsed = parseForm(signupSchema, fd);
+  if (!parsed.ok) return parsed.state;
+  const { name, phone, password } = parsed.data;
   try {
     const user = await db.user.create({
       data: {
-        name: name || phone, phone, passwordHash: await hashPassword(password),
+        name, phone, passwordHash: await hashPassword(password),
         termsAcceptedAt: new Date(), termsVersion: TERMS_VERSION, // DPDP consent record
       },
     });
     await createSession(user.id);
   } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return { error: "phoneTaken" };
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return fieldError("phone", "phoneTaken", fd);
     throw e;
   }
   redirect("/onboarding");
@@ -40,11 +36,13 @@ export async function signup(_: FormState, fd: FormData): Promise<FormState> {
 const DUMMY_HASH = hashPassword("dummy-password-for-timing");
 
 export async function login(_: FormState, fd: FormData): Promise<FormState> {
-  const phone = normalizePhone(str(fd, "phone"));
-  const password = String(fd.get("password") ?? "");
+  const parsed = parseForm(loginSchema, fd);
+  if (!parsed.ok) return parsed.state;
+  const phone = normalizePhone(parsed.data.phone);
   const user = phone ? await db.user.findUnique({ where: { phone } }) : null;
-  const ok = await verifyPassword(password, user?.passwordHash ?? (await DUMMY_HASH));
-  if (!user || !ok) return { error: "invalidLogin" };
+  const ok = await verifyPassword(parsed.data.password, user?.passwordHash ?? (await DUMMY_HASH));
+  // Don't say which one was wrong (phone or password); keep the phone filled in.
+  if (!user || !ok) return { error: "invalidLogin", values: { phone: parsed.data.phone } };
   await createSession(user.id);
   redirect("/today");
 }
@@ -56,10 +54,11 @@ export async function logout() {
 
 export async function createOrg(_: FormState, fd: FormData): Promise<FormState> {
   const user = await requireUser();
-  const name = str(fd, "name").slice(0, 80);
-  const slug = slugify(str(fd, "slug") || name);
-  if (name.length < 2) return { error: "messName" };
-  if (!SLUG_RE.test(slug)) return { error: "messLinkHint" };
+  const parsed = parseForm(orgSetupSchema, fd);
+  if (!parsed.ok) return parsed.state;
+  const { name } = parsed.data;
+  const slug = slugify(parsed.data.slug || name);
+  if (!SLUG_RE.test(slug)) return fieldError("slug", "slugInvalid", fd);
   try {
     await db.$transaction(async (tx) => {
       const org = await tx.org.create({ data: { name, slug, phone: user.phone } });
@@ -76,7 +75,7 @@ export async function createOrg(_: FormState, fd: FormData): Promise<FormState> 
       });
     });
   } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return { error: "slugTaken" };
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return fieldError("slug", "slugTaken", fd);
     throw e;
   }
   redirect("/today");

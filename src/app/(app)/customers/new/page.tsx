@@ -19,12 +19,13 @@ export default function NewCustomerPage() {
 
 async function NewCustomer() {
   const ctx = await requireStaff();
-  const [{ t }, plans] = await Promise.all([getT(), listPlans(ctx)]);
+  const [{ t, lang }, plans] = await Promise.all([getT(), listPlans(ctx)]);
+  const today = todayIn(ctx.org.timezone);
   return (
     <>
       <PageHeader title={t.addCustomer} back="/customers" />
       <main className="mx-auto max-w-md p-4">
-        <CustomerForm t={t} plans={plans} v={{ startDate: todayIn(ctx.org.timezone) }} />
+        <CustomerForm t={t} lang={lang} today={today} plans={plans} v={{ startDate: today }} />
       </main>
     </>
   );

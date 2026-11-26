@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { ConnectivityFallback } from "@/components/sync-bar";
 import { PageHeader, WAITING } from "@/components/page-header";
 import { ScreenHint } from "@/components/menu";
-import { ConfirmButton, QuickForm } from "@/components/quick-form";
+import { ConfirmButton, QuickForm } from "@/components/ui";
 import { IconTrash } from "@/components/icons";
 import { requireStaff } from "@/server/auth";
 import { listPlans } from "@/server/data";

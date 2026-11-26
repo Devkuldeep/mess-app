@@ -10,9 +10,10 @@ import { IconPhone, IconWhatsApp } from "@/components/icons";
 import { requireStaff } from "@/server/auth";
 import { getCustomer, getCustomerBalance, getCustomerPayments } from "@/server/data";
 import { getT } from "@/server/i18n";
-import { deletePayment, setCustomerEnd } from "@/app/actions/customers";
+import { setCustomerEnd } from "@/app/actions/customers";
+import { DeletePaymentButton } from "@/components/delete-payment-button";
 import { fromDbDate, todayIn } from "@/lib/dates";
-import { formatDate, formatMoney } from "@/lib/i18n";
+import { fmt, formatDate, formatMoney } from "@/lib/i18n";
 import { whatsappLink } from "@/lib/links";
 
 export const metadata = { title: "Customer" };
@@ -56,6 +57,7 @@ async function Customer({ params }: { params: PageProps<"/customers/[id]">["para
             </div>
           </div>
           <PaymentForm
+            key={balance} // reset the suggested amount when the balance changes
             customerId={c.id}
             today={today}
             suggested={Math.max(0, balance)}
@@ -99,10 +101,17 @@ async function Customer({ params }: { params: PageProps<"/customers/[id]">["para
                     <span className="ml-2 text-sm text-muted">{t[p.method]}</span>
                   </span>
                   <span className="text-sm text-muted">{formatDate(p.paidOn, lang)}</span>
-                  <form action={deletePayment}>
-                    <input type="hidden" name="id" value={p.id} />
-                    <button className="icon-btn text-xl" aria-label={t.delete}>×</button>
-                  </form>
+                  <DeletePaymentButton
+                    id={p.id}
+                    labels={{
+                      delete: t.delete,
+                      title: t.deletePaymentTitle,
+                      description: fmt(t.deletePaymentDesc, { amount: formatMoney(p.amount), date: formatDate(p.paidOn, lang) }),
+                      confirm: t.delete,
+                      cancel: t.cancel,
+                      done: t.paymentDeleted,
+                    }}
+                  />
                 </li>
               ))}
             </ul>

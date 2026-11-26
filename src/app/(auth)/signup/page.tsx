@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signup } from "@/app/actions/auth";
-import { ActionForm } from "@/components/auth-form";
+import { ActionForm, FormCheckbox, FormInput, FormPasswordInput, FormPhoneInput } from "@/components/ui";
 import { LangToggle } from "@/components/lang-toggle";
 import { getUser } from "@/server/auth";
 import { getT } from "@/server/i18n";
@@ -16,25 +16,19 @@ export default async function SignupPage() {
       <h1 className="text-center text-2xl font-bold">{t.signup}</h1>
       <div className="card p-4">
         <ActionForm action={signup} errors={t} submit={t.signup}>
-          <label className="block">
-            <span className="label">{t.yourName}</span>
-            <input name="name" autoComplete="name" required maxLength={80} className="field" />
-          </label>
-          <label className="block">
-            <span className="label">{t.phone}</span>
-            <input name="phone" type="tel" inputMode="numeric" autoComplete="tel-national" required className="field" placeholder="98765 43210" />
-          </label>
-          <label className="block">
-            <span className="label">{t.password}</span>
-            <input name="password" type="password" autoComplete="new-password" required minLength={8} className="field" />
-          </label>
-          <label className="flex items-start gap-3 py-1 text-sm">
-            <input type="checkbox" name="consent" required className="mt-0.5 size-5 shrink-0 accent-[var(--brand)]" />
-            <span>
-              {t.consentPrefix} <Link href="/terms" target="_blank" className="font-medium text-brand-ink underline">{t.terms}</Link>{" "}
-              {t.consentAnd} <Link href="/privacy" target="_blank" className="font-medium text-brand-ink underline">{t.privacy}</Link> {t.consentSuffix}
-            </span>
-          </label>
+          <FormInput name="name" label={t.yourName} required maxLength={80} autoComplete="name" />
+          <FormPhoneInput name="phone" label={t.phone} required invalidMessage={t.invalidPhone} />
+          <FormPasswordInput name="password" label={t.password} required minLength={8} autoComplete="new-password" hint={t.passwordShort} labels={{ show: t.showPassword, hide: t.hidePassword }} />
+          <FormCheckbox
+            name="consent"
+            required
+            label={
+              <span className="font-normal">
+                {t.consentPrefix} <Link href="/terms" target="_blank" className="font-medium text-brand-ink underline">{t.terms}</Link>{" "}
+                {t.consentAnd} <Link href="/privacy" target="_blank" className="font-medium text-brand-ink underline">{t.privacy}</Link> {t.consentSuffix}
+              </span>
+            }
+          />
         </ActionForm>
       </div>
       <p className="text-center text-muted">

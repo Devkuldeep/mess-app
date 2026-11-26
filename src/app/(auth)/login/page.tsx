@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { login } from "@/app/actions/auth";
-import { ActionForm } from "@/components/auth-form";
+import { ActionForm, FormPasswordInput, FormPhoneInput } from "@/components/ui";
 import { LangToggle } from "@/components/lang-toggle";
 import { getUser } from "@/server/auth";
 import { getT } from "@/server/i18n";
@@ -19,14 +19,8 @@ export default async function LoginPage() {
       </div>
       <div className="card p-4">
         <ActionForm action={login} errors={t} submit={t.login}>
-          <label className="block">
-            <span className="label">{t.phone}</span>
-            <input name="phone" type="tel" inputMode="numeric" autoComplete="tel-national" required className="field" placeholder="98765 43210" />
-          </label>
-          <label className="block">
-            <span className="label">{t.password}</span>
-            <input name="password" type="password" autoComplete="current-password" required className="field" />
-          </label>
+          <FormPhoneInput name="phone" label={t.phone} required invalidMessage={t.invalidPhone} />
+          <FormPasswordInput name="password" label={t.password} required autoComplete="current-password" labels={{ show: t.showPassword, hide: t.hidePassword }} />
         </ActionForm>
       </div>
       <p className="text-center text-muted">

@@ -6,9 +6,8 @@ import { db } from "@/server/db";
 import { requireStaff } from "@/server/auth";
 import { applyPayment } from "@/server/mutations";
 import { isISODate, toDbDate, todayIn } from "@/lib/dates";
-import { normalizePhone } from "@/lib/links";
 import { isUuid } from "@/lib/sync";
-import type { FormState } from "./auth";
+import { customerSchema, fieldError, parseForm, type FormState } from "@/lib/validation";
 
 const str = (fd: FormData, k: string, max: number) => {
   const v = String(fd.get(k) ?? "").trim().slice(0, max);
@@ -18,31 +17,20 @@ const str = (fd: FormData, k: string, max: number) => {
 export async function saveCustomer(_: FormState, fd: FormData): Promise<FormState> {
   const ctx = await requireStaff();
   const id = String(fd.get("id") ?? "");
-  const name = str(fd, "name", 80);
-  if (!name) return { error: "name" };
-  const rawPhone = str(fd, "phone", 20);
-  const phone = rawPhone ? normalizePhone(rawPhone) : null;
-  if (rawPhone && !phone) return { error: "invalidPhone" };
-  const planId = String(fd.get("planId") ?? "");
-  if (planId && !(isUuid(planId) && (await db.plan.count({ where: { id: planId, orgId: ctx.orgId } })) === 1)) {
-    return { error: "plan" };
+  if (id && !isUuid(id)) return { error: "invalidValue" };
+  const parsed = parseForm(customerSchema, fd);
+  if (!parsed.ok) return parsed.state;
+  const { startDate, ...rest } = parsed.data;
+  // The plan must belong to this mess (never trust an id from the form).
+  if (rest.planId && (await db.plan.count({ where: { id: rest.planId, orgId: ctx.orgId } })) !== 1) {
+    return fieldError("planId", "planInvalid", fd);
   }
-  const start = String(fd.get("startDate") ?? "");
-  const data = {
-    name,
-    phone,
-    address: str(fd, "address", 300),
-    area: str(fd, "area", 60),
-    notes: str(fd, "notes", 300),
-    diet: fd.get("diet") === "nonveg" ? ("nonveg" as const) : ("veg" as const),
-    planId: planId || null,
-    startDate: toDbDate(isISODate(start) ? start : todayIn(ctx.org.timezone)),
-  };
+  const data = { ...rest, startDate: toDbDate(startDate) };
 
   let customerId = id;
   if (id) {
     const { count } = await db.customer.updateMany({ where: { id, orgId: ctx.orgId }, data });
-    if (count !== 1) return { error: "name" };
+    if (count !== 1) return { error: "invalidValue" };
   } else {
     const c = await db.customer.create({
       data: { ...data, orgId: ctx.orgId, portalToken: randomBytes(18).toString("base64url") },

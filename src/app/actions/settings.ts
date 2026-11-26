@@ -3,9 +3,8 @@ import { refresh } from "next/cache";
 import { db } from "@/server/db";
 import { requireMember } from "@/server/auth";
 import { isISODate, toDbDate } from "@/lib/dates";
-import { normalizePhone, UPI_RE } from "@/lib/links";
 import { isUuid } from "@/lib/sync";
-import type { FormState } from "./auth";
+import { orgSettingsSchema, parseForm, type FormState } from "@/lib/validation";
 
 const s = (fd: FormData, k: string, max: number) => String(fd.get(k) ?? "").trim().slice(0, max);
 const owner = () => requireMember(["owner"]);
@@ -13,24 +12,9 @@ const staff = () => requireMember(["owner", "manager"]);
 
 export async function updateOrg(_: FormState, fd: FormData): Promise<FormState> {
   const ctx = await owner();
-  const name = s(fd, "name", 80);
-  const upi = s(fd, "upiId", 120);
-  const phone = s(fd, "phone", 20);
-  const cutoff = Number(fd.get("skipCutoffHour"));
-  const target = Number(fd.get("wastageTargetPct"));
-  if (name.length < 2) return { error: "messName" };
-  if (upi && !UPI_RE.test(upi)) return { error: "upiId" };
-  if (phone && !normalizePhone(phone)) return { error: "invalidPhone" };
-  await db.org.update({
-    where: { id: ctx.orgId },
-    data: {
-      name,
-      upiId: upi || null,
-      phone: phone ? normalizePhone(phone) : null,
-      skipCutoffHour: Number.isInteger(cutoff) && cutoff >= 0 && cutoff <= 23 ? cutoff : 21,
-      wastageTargetPct: Number.isInteger(target) && target >= 1 && target <= 50 ? target : 5,
-    },
-  });
+  const parsed = parseForm(orgSettingsSchema, fd);
+  if (!parsed.ok) return parsed.state;
+  await db.org.update({ where: { id: ctx.orgId }, data: parsed.data });
   refresh();
   return { ok: true };
 }
