@@ -17,6 +17,7 @@ desktop is a stretched phone layout, not a separate design.
 - Content gets bottom padding so the tab bar never covers the last row (`pb-28`).
 - One primary action per screen. Put it where the thumb is: bottom-right FAB or a full-width button at the end of the content.
 - Lists are **cards/rows, never tables**. One row = one tap target; secondary actions are icon buttons on the right.
+- Tabular data (bills, reports): use `DataTable` — it renders cards on phones and a table only from `sm` up. Give it `mobile` roles: one `title`, a `subtitle`, the key number as `meta`.
 - No horizontal scroll, ever (except deliberate chip rows with `overflow-x-auto snap-x`).
 
 ## Touch & input
