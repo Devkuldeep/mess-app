@@ -1,26 +1,174 @@
 @import "tailwindcss";
 
+/* Design tokens — see .claude/skills/mobile-ui/SKILL.md */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --surface: #f7f5f2;
+  --card: #ffffff;
+  --ink: #1c1917;
+  --muted: #6b635b;
+  --line: #e7e2dc;
+  --brand: #ea580c;
+  --brand-ink: #c2410c;
+  --brand-soft: #fff1e8;
+  --on-brand: #ffffff;
+  --ok: #15803d;
+  --ok-soft: #e8f6ec;
+  --warn: #b45309;
+  --warn-soft: #fdf3e1;
+  --bad: #b91c1c;
+  --bad-soft: #fdecec;
+  --veg: #15803d;
+  --nonveg: #b91c1c;
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --surface: #12100e;
+    --card: #1d1a17;
+    --ink: #f3efea;
+    --muted: #a8a097;
+    --line: #2f2a25;
+    --brand: #f97316;
+    --brand-ink: #fdba74;
+    --brand-soft: #2c1a0e;
+    --on-brand: #1c0f05;
+    --ok: #4ade80;
+    --ok-soft: #12271a;
+    --warn: #fbbf24;
+    --warn-soft: #2b2110;
+    --bad: #f87171;
+    --bad-soft: #2d1414;
+    --veg: #4ade80;
+    --nonveg: #f87171;
+    color-scheme: dark;
   }
 }
 
+@theme inline {
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-on-brand: var(--on-brand);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --color-veg: var(--veg);
+  --color-nonveg: var(--nonveg);
+  --font-sans: var(--font-geist-sans), "Noto Sans Devanagari", system-ui, sans-serif;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  text-size-adjust: 100%;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  line-height: 1.5;
+  overscroll-behavior-y: none;
+}
+
+/* Hide number spinners — we use inputMode for the keypad. */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+@utility card {
+  @apply rounded-2xl border border-line bg-card;
+}
+@utility btn {
+  @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 text-base font-semibold transition select-none active:scale-[.98] disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-brand text-on-brand;
+}
+@utility btn-secondary {
+  @apply btn border border-line bg-card text-ink;
+}
+@utility btn-ghost {
+  @apply btn text-brand-ink;
+}
+@utility icon-btn {
+  @apply inline-flex size-12 shrink-0 items-center justify-center rounded-xl text-muted transition active:scale-95 active:bg-line;
+}
+@utility field {
+  @apply block w-full min-h-12 rounded-xl border border-line bg-card px-3 text-base text-ink outline-none placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand/25;
+}
+@utility label {
+  @apply mb-1 block text-sm font-medium text-muted;
+}
+@utility section-title {
+  @apply px-1 text-sm font-semibold tracking-wide text-muted uppercase;
+}
+@utility chip {
+  @apply inline-flex min-h-10 items-center gap-1 rounded-full border border-line bg-card px-4 text-sm font-medium text-ink;
+  &[aria-current="page"],
+  &[aria-pressed="true"],
+  &[aria-checked="true"] {
+    @apply border-brand bg-brand-soft text-brand-ink;
+  }
+}
+
+/* Long-form policy text (no typography plugin). */
+@layer components {
+  .legal {
+    font-size: 0.975rem;
+    line-height: 1.7;
+  }
+  .legal h2 {
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+  .legal h3 {
+    margin-top: 1.25rem;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+  }
+  .legal p,
+  .legal ul,
+  .legal ol {
+    margin-bottom: 0.75rem;
+  }
+  .legal ul {
+    list-style: disc;
+    padding-left: 1.25rem;
+  }
+  .legal ol {
+    list-style: decimal;
+    padding-left: 1.25rem;
+  }
+  .legal li {
+    margin-bottom: 0.25rem;
+  }
+  .legal a {
+    color: var(--brand-ink);
+    text-decoration: underline;
+  }
+  .legal table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+  .legal th,
+  .legal td {
+    border: 1px solid var(--line);
+    padding: 0.4rem 0.5rem;
+    text-align: left;
+    vertical-align: top;
+  }
 }
