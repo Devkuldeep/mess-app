@@ -10,7 +10,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { DEFAULT_DISHES } from "@/lib/wastage";
 import { TERMS_VERSION } from "@/lib/business";
 
-export type FormState = { error?: keyof Dict } | undefined;
+export type FormState = { error?: keyof Dict; ok?: boolean } | undefined;
 
 const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
 

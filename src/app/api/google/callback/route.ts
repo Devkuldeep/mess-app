@@ -14,7 +14,7 @@ function same(a: string, b: string) {
 
 export async function GET(req: NextRequest) {
   const back = (result: string) => {
-    const res = NextResponse.redirect(new URL(`/more?drive=${result}#drive`, req.url));
+    const res = NextResponse.redirect(new URL(`/more/backup?drive=${result}`, req.url));
     res.cookies.delete({ name: OAUTH_COOKIE, path: "/api/google" });
     return res;
   };

@@ -7,7 +7,7 @@ import { authUrl, googleConfigured, newPkce, OAUTH_COOKIE, redirectUri } from "@
 export async function GET(req: NextRequest) {
   const ctx = await getMember();
   if (!ctx) return NextResponse.redirect(new URL("/login", req.url));
-  if (ctx.role !== "owner" || !googleConfigured()) return NextResponse.redirect(new URL("/more?drive=unavailable", req.url));
+  if (ctx.role !== "owner" || !googleConfigured()) return NextResponse.redirect(new URL("/more/backup?drive=unavailable", req.url));
 
   const { verifier, challenge, state } = newPkce();
   const res = NextResponse.redirect(authUrl({ redirectUri: redirectUri(req.nextUrl.origin), state, challenge }));

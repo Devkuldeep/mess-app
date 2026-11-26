@@ -32,7 +32,7 @@ export async function updateOrg(_: FormState, fd: FormData): Promise<FormState> 
     },
   });
   refresh();
-  return undefined;
+  return { ok: true };
 }
 
 export async function savePlan(fd: FormData) {

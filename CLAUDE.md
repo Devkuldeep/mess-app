@@ -37,7 +37,8 @@ No Docker? `npx prisma dev -n mess -d` starts a local Postgres; put its TCP URL 
 
 ```
 src/app/(auth)/        login, signup, onboarding
-src/app/(app)/         owner/staff screens: today, delivery, customers, payments, more
+src/app/(app)/         owner/staff screens: today, delivery, customers, payments, wastage, more
+src/app/(app)/more/    menu (profile + grouped rows) → one screen per option: mess, plans, dishes, holidays, backup
 src/app/c/[token]/     customer self-service link (no login)
 src/app/actions/       Server Actions (all mutations except offline sync)
 src/app/api/sync/      offline outbox replay endpoint
@@ -55,7 +56,7 @@ prisma/                schema, migrations, seed
 3. **Billing is derived, not stored**: charges = scheduled meals × plan price (`src/lib/schedule.ts`). Skips and holidays reduce the bill automatically. Changing a plan's price re-prices history — known MVP limitation.
 4. **Cache Components**: anything that reads cookies/params/DB must render inside `<Suspense>`. Pattern used on every page: a sync `default export` that wraps an async component in `<Suspense fallback={<ConnectivityFallback …/>}>`. Don't `await` the session at the top of a layout.
 5. **Hindi-first i18n**: every UI string goes in both `en` and `hi` in `src/lib/i18n.ts`. Server: `const { t, lang } = await getT()`. Client components get strings as props.
-6. **Mobile-first UI**: follow the `mobile-ui` skill (`.claude/skills/mobile-ui/SKILL.md`) for any screen work.
+6. **Mobile-first UI**: follow the `mobile-ui` skill (`.claude/skills/mobile-ui/SKILL.md`) for any screen work. Settings live as a menu (`MenuSection`/`MenuRow` in `src/components/menu.tsx`) with one screen per option — never pile forms onto one page. Small edits use `QuickForm` (shows "…" then "✓ saved"); deletes use `ConfirmButton` (two taps).
 7. **CSS**: custom classes go in `globals.css` as `@utility` (reusable via `@apply`) or inside `@layer components { }`. Plain unlayered rules there are silently dropped by the Tailwind v4 Turbopack loader.
 8. Keep `src/lib/*` free of server/browser-only imports so it stays unit-testable with plain `node --test` (relative imports there use the `.ts` extension).
 
@@ -89,6 +90,13 @@ Testing offline: `npm run build && npm start`, open a page once, then DevTools �
 - Database: Neon Postgres from the Vercel Marketplace (sets `DATABASE_URL` pooled + `DATABASE_URL_UNPOOLED`). Enable Neon's preview branching so Preview deployments don't migrate the production database.
 - Project env vars: `APP_URL` (production URL), `CRON_SECRET`, and for Drive backup `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `TOKEN_ENCRYPTION_KEY`. Add `<APP_URL>/api/google/callback` as an authorised redirect URI in Google Cloud.
 - After deploying, check `/sw.js` returns the service worker (it's generated after `next build`).
+
+## Android app (Play Store)
+
+- The Android app is a **Trusted Web Activity** wrapping the live PWA (no separate codebase). Build it with PWABuilder (pwabuilder.com → Android) or `npx @bubblewrap/cli init --manifest <APP_URL>/manifest.webmanifest`. One app for all messes; tiffin customers use their link, not the app.
+- `GET /.well-known/assetlinks.json` (`src/app/.well-known/assetlinks.json/route.ts`, logic in `src/lib/assetlinks.ts`) proves the app owns the site, so it opens without a URL bar. Set `ANDROID_PACKAGE_NAME` and `ANDROID_CERT_SHA256` (comma-separated: the upload key **and** the Play App Signing key from Play Console → App integrity), then redeploy — the route is prerendered at build time.
+- Get the final domain **before** publishing; the app is tied to it.
+- Manifest `screenshots` (`public/screenshots/*.webp`) feed Chrome's install sheet and PWABuilder: 5 narrow (412×915 @2x of `/today?d=tomorrow`, `/delivery`, `/payments`, `/wastage/report?range=30`, a customer link) + 1 wide (homepage 1280×800), Hindi, demo seed data. Retake them after visible UI changes (headless Chrome via DevTools protocol with a demo session cookie; never against production data).
 
 ## Legal & public pages
 

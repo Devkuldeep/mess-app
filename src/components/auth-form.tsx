@@ -4,11 +4,13 @@ import type { FormState } from "@/app/actions/auth";
 
 /** Form wired to a Server Action with an error key → message map. */
 export function ActionForm({
-  action, errors, submit, children,
+  action, errors, submit, savedText, children,
 }: {
   action: (s: FormState, fd: FormData) => Promise<FormState>;
   errors: Record<string, string>;
   submit: string;
+  /** Shown after a successful save (action returns { ok: true }). */
+  savedText?: string;
   children: ReactNode;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
@@ -19,6 +21,9 @@ export function ActionForm({
         <p role="alert" className="rounded-xl bg-bad-soft px-3 py-2 text-sm text-bad">
           {errors[state.error] ?? state.error}
         </p>
+      )}
+      {state?.ok && savedText && !pending && (
+        <p role="status" className="rounded-xl bg-ok-soft px-3 py-2 text-sm text-ok">✓ {savedText}</p>
       )}
       <button type="submit" disabled={pending} className="btn-primary w-full">
         {pending ? "…" : submit}
