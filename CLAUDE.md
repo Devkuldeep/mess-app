@@ -82,6 +82,14 @@ The worker is generated at build time, not by Serwist's `/serwist/[path]` route:
 
 Testing offline: `npm run build && npm start`, open a page once, then DevTools → Network → Offline (or stop the server) and reload / tap.
 
+## Deploying to Vercel
+
+- `vercel.json`: daily `drive-backup` schedule (2 AM IST) → `GET /api/cron/drive-backup`. It's a `path` target (not a private `function` target) on purpose: the same endpoint serves Docker/VPS crontabs, and it checks `CRON_SECRET`, which Vercel sends automatically. Hobby plan: runs once a day with up to 15 min jitter.
+- Vercel runs `npm run vercel-build` = `prisma migrate deploy && npm run build` (migrations use `DATABASE_URL_UNPOOLED` when present, see `prisma.config.ts`). `output: "standalone"` is only used off Vercel.
+- Database: Neon Postgres from the Vercel Marketplace (sets `DATABASE_URL` pooled + `DATABASE_URL_UNPOOLED`). Enable Neon's preview branching so Preview deployments don't migrate the production database.
+- Project env vars: `APP_URL` (production URL), `CRON_SECRET`, and for Drive backup `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `TOKEN_ENCRYPTION_KEY`. Add `<APP_URL>/api/google/callback` as an authorised redirect URI in Google Cloud.
+- After deploying, check `/sw.js` returns the service worker (it's generated after `next build`).
+
 ## Legal & public pages
 
 - Public, static (no cookies) pages in `src/app/(public)/`: `/` (homepage), `/pricing`, `/privacy`, `/terms`, `/refund`, `/shipping`, `/contact`. They're what Google OAuth review and Razorpay KYC check. Footer links: `SiteFooter`.

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "schedules": {
+    "drive-backup": {
+      "schedule": "0 2 * * *",
+      "timezone": "Asia/Kolkata",
+      "path": "/api/cron/drive-backup",
+      "requestMethod": "GET"
+    }
+  }
+}

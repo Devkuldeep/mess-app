@@ -20,7 +20,8 @@
     "changeset": "changeset",
     "changeset:status": "changeset status --since=main",
     "release:version": "changeset version && npm install --package-lock-only --ignore-scripts",
-    "check:legal": "tsx scripts/check-legal.ts"
+    "check:legal": "tsx scripts/check-legal.ts",
+    "vercel-build": "prisma migrate deploy && npm run build"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",

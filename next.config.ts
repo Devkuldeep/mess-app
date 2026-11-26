@@ -4,8 +4,8 @@ import { withSerwist } from "@serwist/turbopack";
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
-  // Standalone server bundle for the Docker production image.
-  output: "standalone",
+  // Standalone server bundle for the Docker image; Vercel builds its own output.
+  output: process.env.VERCEL ? undefined : "standalone",
   experimental: {
     // Keep navigations / Server Actions pending while offline and retry on
     // reconnect; enables `useOffline()` from "next/offline".

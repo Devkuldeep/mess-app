@@ -1,6 +1,7 @@
 // Nightly Google Drive backups for every connected mess.
 // Call with:  Authorization: Bearer $CRON_SECRET   (GET or POST)
-//  - Vercel Cron sends this header automatically when CRON_SECRET is set.
+//  - Vercel: the "drive-backup" schedule in vercel.json calls this daily at 2 AM IST;
+//    Vercel sends the header automatically when CRON_SECRET is set in project env.
 //  - Docker/VPS: crontab →  0 2 * * *  curl -fsS -H "Authorization: Bearer $CRON_SECRET" https://YOUR_DOMAIN/api/cron/drive-backup
 import { timingSafeEqual } from "node:crypto";
 import { runScheduledBackups } from "@/server/drive-backup";
