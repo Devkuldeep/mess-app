@@ -2,16 +2,27 @@
 // App-wide offline plumbing, mounted once in the root layout:
 //  - registers the Serwist service worker (production only)
 //  - keeps the offline outbox flushing and re-renders when it syncs
+//  - hosts global UI driven by zustand stores: toasts and confirm()
 import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { SerwistProvider } from "@serwist/turbopack/react";
 import { startAutoFlush } from "./outbox";
 import { clearLocalDb } from "@/lib/local-db";
+import { ConfirmHost, Toaster } from "@/components/ui";
+import { clientT } from "@/components/ui/shared/client-t";
+import { toast } from "@/stores/toast-store";
 
 export function AppRuntime({ children }: { children: ReactNode }) {
   const router = useRouter();
-  // When a tap made offline reaches the server, refresh server-rendered data.
-  useEffect(() => startAutoFlush(() => router.refresh()), [router]);
+  // When taps made offline reach the server: refresh server data and say so.
+  useEffect(
+    () =>
+      startAutoFlush(() => {
+        router.refresh();
+        toast.success(clientT().syncedToast);
+      }),
+    [router],
+  );
 
   return (
     <SerwistProvider
@@ -22,6 +33,8 @@ export function AppRuntime({ children }: { children: ReactNode }) {
       reloadOnOnline={false}
     >
       {children}
+      <Toaster />
+      <ConfirmHost />
     </SerwistProvider>
   );
 }
