@@ -53,7 +53,7 @@ export const TERMS_VERSION = "2026-11-26";
 
 export type Plan = { name: string; price: string; period: string; customers: string; features: string[]; highlight?: boolean };
 
-// From docs/init-2.md. Prices are placeholders — decide after talking to 5–10 mess owners.
+// From docs/product/business-model.md. Prices are placeholders — decide after talking to 5–10 mess owners.
 export const PLANS: Plan[] = [
   {
     name: "Starter",

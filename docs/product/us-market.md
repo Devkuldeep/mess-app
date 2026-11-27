@@ -1,5 +1,7 @@
 # USA ke liye app taiyaar karna
 
+> Status: ⏸️ jaan-boojh kar baad mein (roadmap Stage 7). Pehle India mein product-market fit.
+
 US me yeh product India se kaafi alag hai: payments, SMS, food laws aur customers sab badal jaate hain. Sabse pehle yeh dekho ki US me kaun sa segment target karna hai.
 
 ## 1. US me target kaun
@@ -68,4 +70,3 @@ Students wala reseller model India jaisa nahi chalega. US me yeh try karo:
 4. MVP me yeh rakho: weekly meal plans, Stripe payments, skip/pause, delivery list by ZIP, SMS/email, allergen labels aur compliance reminders.
 5. Phir wastage aur forecasting jodo, jo Tiffinware jaise tools me mujhe saaf dikhai nahi diya (sirf public pages ke aadhar par, to demo lekar khud check karo).
 
-Agar chaho to main US-ready MVP ka structure (database, Stripe flow, SMS, aur compliance module) ek working prototype ke roop me bana doon. Pehle yeh batao: tum kaun si US city ya segment (diaspora tiffin ya general meal prep) se shuru karna chahte ho?

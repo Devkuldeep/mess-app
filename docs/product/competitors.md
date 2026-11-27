@@ -1,4 +1,4 @@
-# Top 5 competitors (mess/tiffin software)
+# Competitors (mess/tiffin software)
 
 1. **Indian Mesh Tiffin Management System** sabse purana direct competitor hai. Yeh software office jaane waalon ko daily tiffin dene wale sellers ke liye bana hai, aur isme customer info sambhalna aur alag-alag messaging platforms par invoice bhejna jaisi cheezein hain. Company 2010 me Zirakpur (Punjab) me bani thi. Iske features me delivery boy management aur banquet management bhi aate hain.
 
@@ -29,4 +29,3 @@ Jo results mile unme main in cheezon ka saaf combination nahi dekh paaya (kam se
 
 Yeh meri limited search par based hai, aur companies ke andar ke features alag ho sakte hain. Isliye tumhare liye sabse accha kadam yeh hoga ki TiffinHub, Indian Mesh aur MealPe ke free trial ya demo khud lo, aur dekho ki unme kya kamzor hai.
 
-Agar chaho to main inka ek feature-by-feature comparison table bana doon, jisme tumhare planned features ka unse muqabla ho.

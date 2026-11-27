@@ -3,7 +3,7 @@
 Multi-tenant SaaS for small Indian tiffin/mess businesses (15–100 customers).
 Owners see how many tiffins to cook, delivery staff tick off deliveries, customers
 skip meals from a no-login link. Product plans live in `docs/` (Hinglish);
-`docs/init-4.md` has the build order.
+`docs/roadmap.md` has the build order, module dependencies and decisions (`docs/README.md` maps the folder).
 
 @AGENTS.md
 
@@ -58,7 +58,7 @@ prisma/                schema/ (one .prisma file per area: auth, org, customers,
 
 1. **Tenant isolation.** Every query on tenant data filters by `ctx.orgId` from `requireMember()` / `requireStaff()`. Never take an orgId from a form, URL or body. Writes by id use `updateMany/deleteMany({ where: { id, orgId } })`. Details: `src/server/CLAUDE.md`.
 2. **Dates are `"YYYY-MM-DD"` strings** in app code, computed in the org's timezone (`todayIn(org.timezone)`), converted only at the Prisma boundary (`toDbDate` / `fromDbDate`). Never use `new Date()` to mean "today".
-3. **Billing is derived, not stored**: charges = scheduled meals × plan price (`src/lib/schedule.ts`). Skips and holidays reduce the bill automatically. Changing a plan's price re-prices history — known MVP limitation.
+3. **Billing is derived, not stored**: charges = scheduled meals × plan price (`src/lib/schedule.ts`). Skips and holidays reduce the bill automatically. Changing a plan's price re-prices history — known MVP limitation (planned fix: plan versions, subscriptions, ledger and closed-month statements in `docs/plan/core-domain-v2.md`).
 4. **Cache Components**: anything that reads cookies/params/DB must render inside `<Suspense>`. Pattern used on every page: a sync `default export` that wraps an async component in `<Suspense fallback={<ConnectivityFallback …/>}>`. Don't `await` the session at the top of a layout.
 5. **Hindi-first i18n**: every UI string goes in both `en` and `hi` in `src/lib/i18n.ts`. Server: `const { t, lang } = await getT()`. Client components get strings as props.
 6. **Mobile-first UI**: follow the `mobile-ui` skill (`.claude/skills/mobile-ui/SKILL.md`) for any screen work. Settings live as a menu (`MenuSection`/`MenuRow` in `src/components/menu.tsx`) with one screen per option — never pile forms onto one page. Small edits use `QuickForm` (shows "…" then "✓ saved"; the action may return `FormState`, pass `errors={t}`); deletes use `ConfirmButton` (two taps). Both from `@/components/ui`.
@@ -125,7 +125,7 @@ Testing offline: `npm run build && npm start`, open a page once, then DevTools �
 
 ## Wastage module
 
-From `docs/init-3.md`. Owner/manager log "kitna bana / kitna bacha" per meal in ~30s; the app reports waste and suggests how much to cook.
+From `docs/modules/wastage-forecast.md`. Owner/manager log "kitna bana / kitna bacha" per meal in ~30s; the app reports waste and suggests how much to cook.
 
 - **Data**: `Dish` (unit kg/litre/count, `perTiffin` default, optional `costPerUnit`, `variety` = changes daily → entry asks "which one?"), `WastageEntry` (one per org+date+meal, snapshots `tiffins`), `WastageItem` (cooked, leftover, snapshots `costPerUnit`). Dishes are archived, never deleted (history keeps working). New orgs get Dal/Chawal/Sabzi/Roti (`DEFAULT_DISHES`); older orgs get them lazily in `listDishes`.
 - **Logic** (pure, tested): `src/lib/wastage.ts` — `wastageReport` (₹-weighted waste %, loss, kg, worst dishes/varieties, reasons, per-day) and `suggestCooking` (median eaten-per-tiffin over the last 28 days for that meal × tiffins × (1 + buffer); buffer = variability, 3–15%; falls back to `perTiffin` + 10% until 3 entries exist → "learning").
