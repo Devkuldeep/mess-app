@@ -51,7 +51,7 @@ src/components/ui/     design system (import from "@/components/ui"): forms/, dr
 src/stores/            zustand stores (browser-only UI state): toast-store (`toast.success()`), confirm-store (`await confirm()`)
 src/components/ui/gsap.ts  the only place GSAP is imported/registered (useGSAP, Draggable) + prefersReducedMotion()
 src/app/dev/           dev-only galleries: /dev/forms, /dev/drawers, /dev/dialogs, /dev/tables, /dev/cards, /dev/list (404 in production)
-prisma/                schema, migrations, seed
+prisma/                schema/ (one .prisma file per area: auth, org, customers, wastage, backup), migrations, seed
 ```
 
 ## Rules that matter

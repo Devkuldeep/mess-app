@@ -1,0 +1,24 @@
+// ───────────── Google Drive backup (owner's own Drive) ─────────────
+
+enum DriveStatus {
+  active
+  needs_reconnect // owner revoked access or the token expired
+}
+
+/// A mess owner's own Google Drive, used for automatic backups (drive.file scope).
+model DriveConnection {
+  orgId           String      @id @db.Uuid
+  googleEmail     String?
+  /// AES-256-GCM encrypted refresh token (src/server/secretbox.ts). Never exported or logged.
+  refreshTokenEnc String
+  /// "Mess Manager Backups" folder created by the app.
+  folderId        String?
+  status          DriveStatus @default(active)
+  connectedBy     String?     @db.Uuid
+  connectedAt     DateTime    @default(now())
+  lastAttemptAt   DateTime?
+  lastBackupAt    DateTime?
+  lastBackupName  String?
+  lastError       String?
+  org             Org         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}

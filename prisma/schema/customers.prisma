@@ -1,0 +1,116 @@
+// ───────────── Customers: plans, schedule (skips/holidays), deliveries, payments ─────────────
+
+enum Meal {
+  lunch
+  dinner
+}
+
+enum MealPlan {
+  lunch
+  dinner
+  both
+}
+
+enum Diet {
+  veg
+  nonveg
+}
+
+enum PayMethod {
+  upi
+  cash
+  other
+}
+
+model Plan {
+  id           String     @id @default(uuid()) @db.Uuid
+  orgId        String     @db.Uuid
+  name         String
+  meals        MealPlan
+  pricePerMeal Decimal    @db.Decimal(10, 2)
+  createdAt    DateTime   @default(now())
+  org          Org        @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  customers    Customer[]
+
+  @@unique([orgId, id])
+}
+
+model Customer {
+  id          String     @id @default(uuid()) @db.Uuid
+  orgId       String     @db.Uuid
+  name        String
+  phone       String?
+  address     String?
+  area        String?
+  planId      String?    @db.Uuid
+  diet        Diet       @default(veg)
+  notes       String?
+  startDate   DateTime   @db.Date
+  endDate     DateTime?  @db.Date
+  /// Secret for the customer's no-login link (/c/<token>).
+  portalToken String     @unique
+  createdAt   DateTime   @default(now())
+  org         Org        @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  // Composite FK: the plan must belong to the same org.
+  plan        Plan?      @relation(fields: [orgId, planId], references: [orgId, id], onDelete: NoAction)
+  skips       Skip[]
+  deliveries  Delivery[]
+  payments    Payment[]
+
+  @@unique([orgId, id])
+  @@index([orgId])
+}
+
+model Skip {
+  orgId      String   @db.Uuid
+  customerId String   @db.Uuid
+  date       DateTime @db.Date
+  meal       Meal
+  byCustomer Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  org        Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  customer   Customer @relation(fields: [orgId, customerId], references: [orgId, id], onDelete: Cascade)
+
+  @@id([customerId, date, meal])
+  @@index([orgId, date])
+}
+
+model Holiday {
+  orgId  String   @db.Uuid
+  date   DateTime @db.Date
+  reason String?
+  org    Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@id([orgId, date])
+}
+
+model Delivery {
+  orgId       String   @db.Uuid
+  customerId  String   @db.Uuid
+  date        DateTime @db.Date
+  meal        Meal
+  deliveredAt DateTime @default(now())
+  deliveredBy String?  @db.Uuid
+  org         Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  customer    Customer @relation(fields: [orgId, customerId], references: [orgId, id], onDelete: Cascade)
+
+  @@id([customerId, date, meal])
+  @@index([orgId, date])
+}
+
+model Payment {
+  /// Generated on the device, so an offline payment replayed twice is stored once.
+  id         String    @id @db.Uuid
+  orgId      String    @db.Uuid
+  customerId String    @db.Uuid
+  amount     Decimal   @db.Decimal(10, 2)
+  paidOn     DateTime  @db.Date
+  method     PayMethod @default(upi)
+  note       String?
+  createdBy  String?   @db.Uuid
+  createdAt  DateTime  @default(now())
+  org        Org       @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  customer   Customer  @relation(fields: [orgId, customerId], references: [orgId, id], onDelete: Cascade)
+
+  @@index([orgId, customerId])
+}

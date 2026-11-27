@@ -1,0 +1,77 @@
+// ───────────── Wastage: "kitna bana / kitna bacha" per meal ─────────────
+
+enum DishUnit {
+  kg
+  litre
+  count
+}
+
+enum WasteReason {
+  none
+  late_skip // customers skipped after cooking started
+  not_taken // customer didn't take the tiffin
+  disliked // food not liked
+  overcooked // simply made too much
+  other
+}
+
+/// Something the kitchen cooks and measures daily (Dal, Chawal, Sabzi, Roti…).
+model Dish {
+  id          String        @id @default(uuid()) @db.Uuid
+  orgId       String        @db.Uuid
+  name        String
+  unit        DishUnit
+  /// Starting guess for quantity per tiffin, until real data is learned.
+  perTiffin   Decimal       @db.Decimal(8, 3)
+  /// ₹ per unit (kg / litre / piece). Optional; enables ₹ loss.
+  costPerUnit Decimal?      @db.Decimal(10, 2)
+  /// Changes daily (which sabzi / which dal) → entry asks for a label.
+  variety     Boolean       @default(false)
+  sortOrder   Int           @default(0)
+  archived    Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  org         Org           @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  items       WastageItem[]
+
+  @@unique([orgId, name])
+  @@unique([orgId, id])
+  @@index([orgId])
+}
+
+/// One meal's "kitna bana / kitna bacha" record. One per org + date + meal.
+model WastageEntry {
+  id        String        @id @default(uuid()) @db.Uuid
+  orgId     String        @db.Uuid
+  date      DateTime      @db.Date
+  meal      Meal
+  /// Tiffins scheduled when saved (snapshot, so history doesn't shift).
+  tiffins   Int
+  reason    WasteReason   @default(none)
+  note      String?
+  createdBy String?       @db.Uuid
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  org       Org           @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  items     WastageItem[]
+
+  @@unique([orgId, date, meal])
+  @@unique([orgId, id])
+  @@index([orgId, date])
+}
+
+model WastageItem {
+  orgId       String       @db.Uuid
+  entryId     String       @db.Uuid
+  dishId      String       @db.Uuid
+  /// Today's variety, e.g. "Bhindi" for Sabzi.
+  label       String?
+  cooked      Decimal      @db.Decimal(10, 3)
+  leftover    Decimal      @db.Decimal(10, 3)
+  /// Dish cost when saved (snapshot, so price changes don't rewrite history).
+  costPerUnit Decimal?     @db.Decimal(10, 2)
+  entry       WastageEntry @relation(fields: [orgId, entryId], references: [orgId, id], onDelete: Cascade)
+  dish        Dish         @relation(fields: [orgId, dishId], references: [orgId, id], onDelete: Restrict)
+
+  @@id([entryId, dishId])
+  @@index([orgId, dishId])
+}

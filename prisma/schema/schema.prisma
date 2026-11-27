@@ -1,0 +1,22 @@
+// Mess app — multi-tenant schema, split by area (Prisma multi-file schema).
+// Every .prisma file in this folder is one schema; models can reference each
+// other across files. Generator + datasource live only here.
+//
+//   auth.prisma       User, Session
+//   org.prisma        Org (tenant), Member, Role
+//   customers.prisma  plans, customers, skips, holidays, deliveries, payments
+//   wastage.prisma    dishes and daily wastage entries
+//   backup.prisma     Google Drive backup connection
+//
+// Every tenant-owned table has `orgId`. Server code must always filter by the
+// orgId from the signed-in member's context (see src/server/auth.ts), never by
+// an orgId sent from the client.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}

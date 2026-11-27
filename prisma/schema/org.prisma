@@ -1,0 +1,44 @@
+// ───────────── Tenant: a mess (Org) and its staff (Member) ─────────────
+
+enum Role {
+  owner
+  manager
+  delivery
+}
+
+model Org {
+  id               String            @id @default(uuid()) @db.Uuid
+  name             String
+  slug             String            @unique
+  phone            String?
+  upiId            String?
+  brandColor       String            @default("#ea580c")
+  /// A meal on day D can be skipped until (D - 1) at this local hour.
+  skipCutoffHour   Int               @default(21) @db.SmallInt
+  timezone         String            @default("Asia/Kolkata")
+  /// Owner's wastage goal, % of food cooked.
+  wastageTargetPct Int               @default(5) @db.SmallInt
+  createdAt        DateTime          @default(now())
+  members          Member[]
+  plans            Plan[]
+  customers        Customer[]
+  holidays         Holiday[]
+  skips            Skip[]
+  deliveries       Delivery[]
+  payments         Payment[]
+  dishes           Dish[]
+  wastageEntries   WastageEntry[]
+  driveConnections DriveConnection[]
+}
+
+model Member {
+  orgId     String   @db.Uuid
+  userId    String   @db.Uuid
+  role      Role
+  createdAt DateTime @default(now())
+  org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([orgId, userId])
+  @@index([userId])
+}
