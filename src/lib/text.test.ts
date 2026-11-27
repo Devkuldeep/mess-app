@@ -10,3 +10,9 @@ test("initials: Latin and Hindi names, one word, extra spaces", () => {
   assert.equal(initials("रवि कुमार"), "रकु");
   assert.equal(initials("क्षमा शर्मा"), "क्षश");
 });
+
+test("initials skip brackets and punctuation", () => {
+  assert.equal(initials("Raju (delivery)"), "RD");
+  assert.equal(initials("— Aman"), "A");
+  assert.equal(initials("(रवि) कुमार"), "रकु");
+});

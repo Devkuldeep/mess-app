@@ -15,7 +15,12 @@ function firstGrapheme(word: string): string {
  * "रवि कुमार" → "रकु" (a letter keeps its vowel sign), "क्षमा शर्मा" → "क्षश".
  */
 export function initials(name: string, max = 2): string {
-  const words = name.trim().split(/\s+/).filter(Boolean);
+  // Skip leading punctuation and ignore words with no letters: "Raju (delivery)" → "RD", "— Aman" → "A".
+  const words = name
+    .trim()
+    .split(/\s+/)
+    .map((w) => w.replace(/^[^\p{L}\p{N}]+/u, ""))
+    .filter(Boolean);
   return words
     .slice(0, max)
     .map((w) => firstGrapheme(w).toLocaleUpperCase())
