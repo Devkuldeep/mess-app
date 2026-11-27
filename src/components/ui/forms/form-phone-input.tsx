@@ -1,10 +1,10 @@
 "use client";
 // Indian mobile number: fixed +91, number keypad, shown as "98765 43210".
 // Submits the 10 digits (no spaces). Validates on blur with normalizePhone().
-import { useState, type InputHTMLAttributes } from "react";
+import { useRef, useState, type InputHTMLAttributes } from "react";
 import { normalizePhone } from "@/lib/links";
 import { useFieldState } from "./form-context";
-import { describedBy, errorRing, FormField, useFieldIds, type FieldBaseProps } from "./form-field";
+import { describedBy, errorRing, FormField, useFieldIds, type FieldBaseProps, useFormReset } from "./form-field";
 
 export type FormPhoneInputProps = FieldBaseProps &
   Omit<InputHTMLAttributes<HTMLInputElement>, "className" | "type" | "value" | "defaultValue" | "onChange"> & {
@@ -30,6 +30,11 @@ export function FormPhoneInput({
   const fs = useFieldState(name);
   const [digits, setDigits] = useState(digitsOnly(fs.value ?? defaultValue ?? ""));
   const [touched, setTouched] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  useFormReset(inputRef, () => {
+    setDigits(digitsOnly(defaultValue ?? ""));
+    setTouched(false);
+  });
   const invalid = touched && digits.length > 0 && !normalizePhone(digits);
   const shownError = error ?? (invalid ? invalidMessage : null) ?? fs.error ?? null;
 
@@ -38,6 +43,7 @@ export function FormPhoneInput({
       <div className="relative">
         <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center border-r border-line pr-2 text-muted">+91</span>
         <input
+          ref={inputRef}
           id={ids.id}
           type="tel"
           inputMode="numeric"

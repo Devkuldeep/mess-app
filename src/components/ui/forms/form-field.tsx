@@ -2,7 +2,7 @@
 // Base of every form control: label, required mark, hint, error message and
 // the ids that tie them to the input for screen readers.
 // Rules: .claude/skills/mobile-ui/SKILL.md (48px targets, 16px text, colour + text for errors).
-import { useId, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode, type RefObject } from "react";
 
 export type FieldBaseProps = {
   /** Visible label. Keep it short; Devanagari wraps fine. */
@@ -67,4 +67,24 @@ export function FormField({
       )}
     </Wrapper>
   );
+}
+
+/**
+ * Run `onReset` when the control's <form> is reset (form.reset(), QuickForm
+ * `resetOnSave`). Controls that keep their own state (formatted phone, amount…)
+ * need this; plain uncontrolled inputs reset by themselves.
+ */
+export function useFormReset(ref: RefObject<HTMLElement | null>, onReset: () => void) {
+  const cb = useRef(onReset);
+  useEffect(() => {
+    cb.current = onReset;
+  });
+  useEffect(() => {
+    const form = ref.current?.closest("form");
+    if (!form) return;
+    // reset fires before the browser restores defaults; run after it.
+    const h = () => setTimeout(() => cb.current(), 0);
+    form.addEventListener("reset", h);
+    return () => form.removeEventListener("reset", h);
+  }, [ref]);
 }
