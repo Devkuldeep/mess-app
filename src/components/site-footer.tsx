@@ -22,9 +22,16 @@ export function SiteFooter({ compact = false }: { compact?: boolean }) {
         ))}
       </nav>
       {!compact && (
-        <p className="mt-3">
-          © {BUSINESS.appName} · {BUSINESS.legalName}
-        </p>
+        <>
+          <p className="mt-3">
+            <Link href="/learn" className="inline-flex min-h-10 items-center underline-offset-2 hover:underline">
+              📖 App kaise banta hai: developer story
+            </Link>
+          </p>
+          <p className="mt-1">
+            © {BUSINESS.appName} · {BUSINESS.legalName}
+          </p>
+        </>
       )}
     </footer>
   );

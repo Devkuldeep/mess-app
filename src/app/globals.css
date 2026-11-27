@@ -172,3 +172,337 @@ input[type="number"]::-webkit-outer-spin-button {
     vertical-align: top;
   }
 }
+
+/* /learn reader (docs/work-flow-story). Themes re-point the app tokens inside
+   .reader-root; text size scales with data-size. Eye comfort: ~68ch lines,
+   1.78 line height, warm paper colours (no pure black on pure white). */
+@layer components {
+  .reader-root {
+    --reader-scale: 1;
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .reader-root ::selection {
+    background: color-mix(in srgb, var(--brand) 28%, transparent);
+  }
+  .reader-root[data-size="0"] {
+    --reader-scale: 0.92;
+  }
+  .reader-root[data-size="2"] {
+    --reader-scale: 1.1;
+  }
+  .reader-root[data-size="3"] {
+    --reader-scale: 1.22;
+  }
+  .reader-root[data-theme="light"] {
+    --surface: #f7f5f2;
+    --card: #ffffff;
+    --ink: #1c1917;
+    --muted: #6b635b;
+    --line: #e7e2dc;
+    --brand: #ea580c;
+    --brand-ink: #c2410c;
+    --brand-soft: #fff1e8;
+    --on-brand: #ffffff;
+    color-scheme: light;
+  }
+  .reader-root[data-theme="sepia"] {
+    --surface: #f4ecd8;
+    --card: #faf4e5;
+    --ink: #3a2e22;
+    --muted: #6b5c48;
+    --line: #e2d4b6;
+    --brand: #b4530f;
+    --brand-ink: #8f3f0b;
+    --brand-soft: #f1dfc0;
+    --on-brand: #ffffff;
+    color-scheme: light;
+  }
+  .reader-root[data-theme="dark"] {
+    --surface: #141210;
+    --card: #1e1b18;
+    --ink: #ebe5dd;
+    --muted: #a59c91;
+    --line: #312b25;
+    --brand: #f97316;
+    --brand-ink: #fdba74;
+    --brand-soft: #2a1a0f;
+    --on-brand: #1c0f05;
+    color-scheme: dark;
+  }
+  .reader-article {
+    max-width: 70ch;
+  }
+  .reader-title {
+    font-size: calc(1.85rem * var(--reader-scale));
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .reader-progress {
+    transition: transform 120ms linear;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reader-progress {
+      transition: none;
+    }
+  }
+
+  .prose-reader {
+    font-size: calc(1.0625rem * var(--reader-scale));
+    line-height: 1.78;
+    overflow-wrap: break-word;
+  }
+  @media (min-width: 768px) {
+    .prose-reader {
+      font-size: calc(1.125rem * var(--reader-scale));
+    }
+  }
+  .prose-reader > :first-child {
+    margin-top: 0;
+  }
+  .prose-reader h2 {
+    margin: 2.4em 0 0.75em;
+    padding-top: 1em;
+    border-top: 1px solid var(--line);
+    font-size: 1.4em;
+    line-height: 1.3;
+    font-weight: 700;
+    scroll-margin-top: 5rem;
+  }
+  .prose-reader > h2:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .prose-reader h3 {
+    margin: 1.9em 0 0.5em;
+    font-size: 1.15em;
+    line-height: 1.35;
+    font-weight: 650;
+    scroll-margin-top: 5rem;
+  }
+  .prose-reader h4 {
+    margin: 1.5em 0 0.4em;
+    font-weight: 650;
+    scroll-margin-top: 5rem;
+  }
+  .prose-reader .heading-anchor {
+    margin-left: 0.4em;
+    color: var(--muted);
+    font-weight: 400;
+    text-decoration: none;
+    opacity: 0;
+  }
+  .prose-reader :is(h2, h3, h4):hover .heading-anchor,
+  .prose-reader .heading-anchor:focus-visible {
+    opacity: 1;
+  }
+  .prose-reader p {
+    margin: 0 0 1.05em;
+  }
+  .prose-reader :is(ul, ol) {
+    margin: 0 0 1.05em;
+    padding-left: 1.5em;
+  }
+  .prose-reader ul {
+    list-style: disc;
+  }
+  .prose-reader ol {
+    list-style: decimal;
+  }
+  .prose-reader li {
+    margin: 0.35em 0;
+    padding-left: 0.15em;
+  }
+  .prose-reader li::marker {
+    color: var(--muted);
+  }
+  .prose-reader li > :is(ul, ol) {
+    margin: 0.35em 0 0.5em;
+  }
+  .prose-reader li > p {
+    margin-bottom: 0.5em;
+  }
+  .prose-reader li.task {
+    position: relative;
+    margin-left: -1.5em;
+    padding-left: 1.85em;
+    list-style: none;
+  }
+  .prose-reader .task-box {
+    position: absolute;
+    top: 0.34em;
+    left: 0;
+    width: 1.1em;
+    height: 1.1em;
+    border: 2px solid var(--muted);
+    border-radius: 0.3em;
+  }
+  .prose-reader .task-box[data-done="true"] {
+    border-color: var(--ok);
+    background: var(--ok);
+  }
+  .prose-reader .task-box[data-done="true"]::after {
+    content: "✓";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--card);
+    font-size: 0.75em;
+    font-weight: 700;
+  }
+  .prose-reader a {
+    color: var(--brand-ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .prose-reader a:hover {
+    text-decoration-thickness: 2px;
+  }
+  .prose-reader a.external::after {
+    content: "↗";
+    display: inline-block;
+    margin-left: 0.15em;
+    font-size: 0.8em;
+  }
+  .prose-reader strong {
+    font-weight: 650;
+  }
+  .prose-reader del {
+    color: var(--muted);
+  }
+  .prose-reader :not(pre) > code {
+    padding: 0.12em 0.38em;
+    border: 1px solid var(--line);
+    border-radius: 0.4em;
+    background: var(--card);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.86em;
+    overflow-wrap: anywhere;
+  }
+  .prose-reader blockquote {
+    margin: 0 0 1.3em;
+    padding: 0.85em 1.1em;
+    border-left: 4px solid var(--brand);
+    border-radius: 0 0.9rem 0.9rem 0;
+    background: var(--brand-soft);
+  }
+  .prose-reader blockquote > :last-child {
+    margin-bottom: 0;
+  }
+  .prose-reader hr {
+    margin: 2.4em 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+  }
+  .prose-reader .code-block {
+    position: relative;
+    margin: 0 0 1.3em;
+  }
+  .prose-reader pre {
+    overflow-x: auto;
+    padding: 2.4em 1.1em 1em;
+    border: 1px solid var(--line);
+    border-radius: 0.9rem;
+    background: var(--card);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.84em;
+    line-height: 1.65;
+    tab-size: 2;
+  }
+  .prose-reader pre code {
+    white-space: pre;
+  }
+  .prose-reader .code-lang {
+    position: absolute;
+    top: 0.7em;
+    left: 1.1em;
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.72em;
+    text-transform: lowercase;
+  }
+  .prose-reader .code-copy {
+    position: absolute;
+    top: 0.45em;
+    right: 0.45em;
+    min-height: 2rem;
+    padding: 0 0.75em;
+    border: 1px solid var(--line);
+    border-radius: 0.6rem;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 0.75em;
+    font-weight: 600;
+  }
+  .prose-reader .code-copy:hover {
+    color: var(--ink);
+  }
+  .prose-reader .table-wrap {
+    margin: 0 0 1.3em;
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 0.9rem;
+    background: var(--card);
+  }
+  .prose-reader table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+    line-height: 1.55;
+  }
+  .prose-reader :is(th, td) {
+    min-width: 9ch;
+    padding: 0.6em 0.8em;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+  .prose-reader th {
+    background: var(--brand-soft);
+    font-weight: 650;
+  }
+  .prose-reader tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .prose-reader tbody tr:nth-child(even) td {
+    background: color-mix(in srgb, var(--surface) 55%, var(--card));
+  }
+  .prose-reader :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  .toc-mobile {
+    margin: 0 0 1.75rem;
+    padding: 0 1rem;
+    border: 1px solid var(--line);
+    border-radius: 0.9rem;
+    background: var(--card);
+  }
+  .toc-mobile summary {
+    display: flex;
+    min-height: 3rem;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .toc-list {
+    margin: 0;
+    padding: 0 0 0.6rem;
+    list-style: none;
+  }
+  .toc-list a {
+    display: block;
+    padding: 0.4rem 0;
+    color: var(--muted);
+    line-height: 1.4;
+    text-decoration: none;
+  }
+  .toc-list a:hover {
+    color: var(--ink);
+  }
+}

@@ -20,6 +20,12 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  // /learn reads docs/work-flow-story/*.md (src/server/learn.ts). Pages prerender at
+  // build time; this also ships the files with the server in case one renders later.
+  outputFileTracingIncludes: {
+    "/learn": ["./docs/work-flow-story/**/*.md"],
+    "/learn/*": ["./docs/work-flow-story/**/*.md"],
+  },
   async headers() {
     // The service worker must never be served from HTTP cache, or updates stall.
     return [{ source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }] }];

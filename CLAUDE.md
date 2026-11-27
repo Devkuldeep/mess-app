@@ -41,6 +41,7 @@ src/app/(auth)/        login, signup, onboarding, join/[token] (staff invite lin
 src/app/(app)/         owner/staff screens: today, delivery, customers, payments, wastage, more
 src/app/(app)/more/    menu (profile + grouped rows) → one screen per option: mess, staff, plans, dishes, holidays, backup
 src/app/c/[token]/     customer self-service link (no login)
+src/app/learn/         public reader for docs/work-flow-story (static; Markdown → AST in src/lib/markdown.ts, loader src/server/learn.ts)
 src/app/actions/       Server Actions (all mutations except offline sync)
 src/app/api/sync/      offline outbox replay endpoint
 src/app/sw.ts          service worker source → public/sw.js (scripts/build-sw.ts, runs after next build)
@@ -110,7 +111,7 @@ Testing offline: `npm run build && npm start`, open a page once, then DevTools �
 
 ## Legal & public pages
 
-- Public, static (no cookies) pages in `src/app/(public)/`: `/` (homepage), `/pricing`, `/privacy`, `/terms`, `/refund`, `/shipping`, `/contact`. They're what Google OAuth review and Razorpay KYC check. Footer links: `SiteFooter`.
+- Public, static (no cookies) pages in `src/app/(public)/`: `/` (homepage), `/pricing`, `/privacy`, `/terms`, `/refund`, `/shipping`, `/contact`. Also `/learn` (`src/app/learn/`): the developer story from `docs/work-flow-story/*.md`, rendered by our own small Markdown parser (no HTML passthrough); `next.config.ts` traces the `.md` files into the server bundle, and links to other docs go to the public GitHub repo (`LEARN_REPO_URL` overrides). Its UI text is Hinglish like the docs. They're what Google OAuth review and Razorpay KYC check. Footer links: `SiteFooter`.
 - **All business details and plan prices live in `src/lib/business.ts`** — never hard-code them in pages. `[BRACKETED]` values are placeholders; pages show a "Draft" warning while any remain, and `npm run check:legal` fails until they're filled. Have a lawyer review before launch.
 - Signup requires consent; `User.termsAcceptedAt` + `termsVersion` record it. When Terms/Privacy change materially, bump `TERMS_VERSION` (re-consent flow not built yet).
 - Privacy Policy already includes Google's "Limited Use" statement and the `drive.file` description for the planned Drive backup — keep it accurate if that design changes.

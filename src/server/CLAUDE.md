@@ -23,5 +23,6 @@ Everything here imports `server-only`; never import it from a client component
 - `staff.ts` — team members + pending invites (owner screen), `getInvite` for the public join page.
 - `mutations.ts` — idempotent writes shared by Server Actions and `/api/sync`.
 - `i18n.ts` — `getT()` reads the `lang` cookie.
+- `learn.ts` — reads `docs/work-flow-story/*.md` for the public `/learn` pages (`'use cache'`, no tenant data).
 
 Getting heavier? Postgres Row Level Security can be layered on later (set `app.org_id` per transaction via a Prisma client extension) as defence in depth.

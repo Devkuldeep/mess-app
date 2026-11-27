@@ -4,6 +4,8 @@
 > **Tareeka:** ek kahani. Ek fictional company **Rasoi Labs** yahi app (Mess Manager, ye repo) bana rahi hai, aur **"Tum"** usme naye junior developer ho. Har chapter mein Tum ek nayi team ke saath baith kar seekhte ho.
 >
 > Company aur log kaalpanik hain. Code, docs aur plans **asli** hain (isi repo ke), taaki har baat ko khud chhoo kar dekh sako.
+>
+> 🌐 **Website par bhi padh sakte ho:** app ke domain par `/learn`. Wahan akshar ka size aur Din/Sepia/Raat mode bhi hai. Ye files hi wahan dikhti hain, isliye yahan badlo to agle deploy mein wahan bhi badal jaayega.
 
 ## Har chapter ka format
 | Hissa | Kya milega |
