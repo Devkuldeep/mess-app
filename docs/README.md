@@ -17,6 +17,7 @@ docs/
 │   ├── core-operations.md   headcount, delivery, payments, customer link, menu
 │   ├── wastage-forecast.md  wastage, forecast, festival calendar
 │   └── academy-content.md   Growth Academy, blog, AI help
+├── work-flow-story/     ← seekhne ke liye: ek IT company ye app A se Z kaise banati hai (kahani + developer deep dive, 16 chapters)
 └── plan/                ← technical implementation plans (build karne se pehle)
     ├── production-readiness.md  CI, tests, security, envs, release, DR, performance
     ├── platform-foundations.md  commands, errors, money, scoped DB, idempotency, settings, entitlements, storage, import, i18n, search
