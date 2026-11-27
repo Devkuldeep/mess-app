@@ -3,7 +3,7 @@
 // other across files. Generator + datasource live only here.
 //
 //   auth.prisma       User, Session
-//   org.prisma        Org (tenant), Member, Role
+//   org.prisma        Org (tenant), Member, Invite, Role
 //   customers.prisma  plans, customers, skips, holidays, deliveries, payments
 //   wastage.prisma    dishes and daily wastage entries
 //   backup.prisma     Google Drive backup connection

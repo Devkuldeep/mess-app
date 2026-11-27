@@ -82,6 +82,24 @@ export const customerSchema = z.object({
   startDate: f.date(),
 });
 
+export const inviteSchema = z.object({
+  name: f.requiredText(1, 80, "nameRequired"),
+  phone: f.phone(),
+  role: z.enum(["manager", "delivery"], err("invalidValue")),
+});
+
+/** /join/<token> for someone without an account (phone comes from the invite). */
+export const joinSignupSchema = z.object({
+  name: f.requiredText(1, 80, "nameRequired"),
+  password: z.string().min(8, err("passwordShort")).max(200, err("tooLong")),
+  consent: z.literal("on", err("consentRequired")),
+});
+
+/** /join/<token> when the invited phone already has an account. */
+export const joinLoginSchema = z.object({
+  password: z.string().min(1, err("passwordRequired")),
+});
+
 // ───────────── parsing ─────────────
 
 type ParseResult<S extends z.ZodObject> = { ok: true; data: z.output<S> } | { ok: false; state: NonNullable<FormState> };

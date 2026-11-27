@@ -7,12 +7,13 @@ import { LangToggle } from "@/components/lang-toggle";
 import { LogoutButton } from "@/components/logout-button";
 import { MenuItem, MenuRow, MenuSection } from "@/components/menu";
 import {
-  IconCalendar, IconChart, IconCloud, IconDoc, IconGlobe, IconHelp, IconPot, IconStore, IconTag,
+  IconCalendar, IconChart, IconCloud, IconDoc, IconGlobe, IconHelp, IconPot, IconStore, IconTag, IconUsers,
 } from "@/components/icons";
 import { requireMember } from "@/server/auth";
 import { listHolidays, listPlans } from "@/server/data";
 import { listDishes } from "@/server/wastage";
 import { getDriveStatus } from "@/server/drive-backup";
+import { countStaff } from "@/server/staff";
 import { getT } from "@/server/i18n";
 import { todayIn } from "@/lib/dates";
 import { fmt, type Dict } from "@/lib/i18n";
@@ -33,11 +34,12 @@ async function More() {
   const { t, lang } = await getT();
   const owner = ctx.role === "owner";
   const staff = ctx.role !== "delivery";
-  const [plans, dishes, holidays, drive] = await Promise.all([
+  const [plans, dishes, holidays, drive, staffCount] = await Promise.all([
     staff ? listPlans(ctx) : [],
     staff ? listDishes(ctx) : [],
     staff ? listHolidays(ctx, todayIn(ctx.org.timezone)) : [],
     owner ? getDriveStatus(ctx.orgId) : null,
+    owner ? countStaff(ctx.orgId) : 0,
   ]);
   const roleLabel = t[`role_${ctx.role}` as keyof Dict];
 
@@ -63,6 +65,7 @@ async function More() {
         {staff && (
           <MenuSection title={t.sectionMess}>
             {owner && <MenuRow href="/more/mess" icon={IconStore} label={t.messDetails} sub={ctx.org.upiId ? `UPI: ${ctx.org.upiId}` : ctx.org.name} />}
+            {owner && <MenuRow href="/more/staff" icon={IconUsers} label={t.staff} sub={staffCount ? fmt(t.nStaff, { n: staffCount }) : t.none} />}
             <MenuRow href="/more/plans" icon={IconTag} label={t.plans} sub={fmt(t.nPlans, { n: plans.length })} />
             <MenuRow href="/more/dishes" icon={IconPot} label={t.dishes} sub={fmt(t.nDishes, { n: dishes.length })} />
             <MenuRow href="/more/holidays" icon={IconCalendar} label={t.holidays} sub={holidays.length ? fmt(t.nUpcoming, { n: holidays.length }) : t.none} />

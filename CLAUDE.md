@@ -37,9 +37,9 @@ No Docker? `npx prisma dev -n mess -d` starts a local Postgres; put its TCP URL 
 ## Layout
 
 ```
-src/app/(auth)/        login, signup, onboarding
+src/app/(auth)/        login, signup, onboarding, join/[token] (staff invite link)
 src/app/(app)/         owner/staff screens: today, delivery, customers, payments, wastage, more
-src/app/(app)/more/    menu (profile + grouped rows) → one screen per option: mess, plans, dishes, holidays, backup
+src/app/(app)/more/    menu (profile + grouped rows) → one screen per option: mess, staff, plans, dishes, holidays, backup
 src/app/c/[token]/     customer self-service link (no login)
 src/app/actions/       Server Actions (all mutations except offline sync)
 src/app/api/sync/      offline outbox replay endpoint
@@ -141,7 +141,7 @@ Each mess backs up to its **owner's own** Google Drive (never ours). Our Google 
 - **Backups** (`src/server/drive-backup.ts`): the same ZIP as "Download my data", one file per day (same-day re-runs replace it), newest 30 kept, folder recreated if the owner deleted it. `invalid_grant`/401 → status `needs_reconnect` (UI asks to reconnect). Disconnect revokes the token at Google and deletes the row.
 - **Nightly job**: `GET|POST /api/cron/drive-backup` with `Authorization: Bearer $CRON_SECRET` backs up every active connection not backed up in 20h. Schedule it daily (Vercel Cron sends the header automatically; VPS/Docker: `0 2 * * * curl -fsS -H "Authorization: Bearer $CRON_SECRET" https://DOMAIN/api/cron/drive-backup`). "Backup now" in More is rate-limited to once a minute.
 - **Google client** is fetch-only (`src/server/google.ts`). `GOOGLE_TEST_BASE` (honoured only for localhost URLs) points it at a fake Google for testing.
-- `DriveConnection` is deliberately **not** in the data export (it holds credentials, not business data). Never log or return `refreshTokenEnc`.
+- `DriveConnection` and `Invite` are deliberately **not** in the data export (it holds credentials, not business data). Never log or return `refreshTokenEnc`.
 - **Google Cloud setup (once, by the app owner)**: create project → enable Google Drive API → OAuth consent screen (External; app name, support email, logo; homepage `/`, privacy `/privacy`, terms `/terms` on your verified domain; scopes `openid`, `email`, `drive.file`) → Credentials → OAuth client (Web application) with redirect `<APP_URL>/api/google/callback` → put ID/secret in `.env`. **Publish to Production** before real use (in Testing mode refresh tokens expire after 7 days and only test users can connect). Submit for verification (brand verification; drive.file is non-sensitive — confirm in the console).
 
 ## Backups & data export
@@ -152,4 +152,4 @@ Each mess backs up to its **owner's own** Google Drive (never ours). Our Google 
 
 ## Roadmap hooks (from docs/)
 
-Next phases: wastage entry + forecast (add a Dexie table + outbox op so entry works offline), reseller system, Razorpay billing, WhatsApp API, festival calendar. Org switcher is not built — a user uses their first membership. Staff invites have no UI yet (insert `Member` rows directly).
+Next phases: wastage entry + forecast (add a Dexie table + outbox op so entry works offline), reseller system, Razorpay billing, WhatsApp API, festival calendar. Org switcher is not built — a user uses their first membership. Staff: owner invites from More → Staff (name, phone, role manager/delivery) → WhatsApp link `/join/<token>` (7 days, single use, only that phone can accept: new number makes a password, existing account enters its password). One account = one mess for now, so a number already in another mess can't join. Removing someone signs them out if it was their only mess. Logic: `src/app/actions/staff.ts`, `src/server/staff.ts`, `src/lib/invite.ts`.

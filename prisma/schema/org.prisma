@@ -1,4 +1,4 @@
-// ───────────── Tenant: a mess (Org) and its staff (Member) ─────────────
+// ───────────── Tenant: a mess (Org), its staff (Member) and staff invites ─────────────
 
 enum Role {
   owner
@@ -29,6 +29,7 @@ model Org {
   dishes           Dish[]
   wastageEntries   WastageEntry[]
   driveConnections DriveConnection[]
+  invites          Invite[]
 }
 
 model Member {
@@ -41,4 +42,26 @@ model Member {
 
   @@id([orgId, userId])
   @@index([userId])
+}
+
+/// Owner's invite for a staff member (manager / delivery), shared as a link
+/// (/join/<token>) on WhatsApp. Only the invited phone can accept; accepting
+/// creates the Member row and deletes the invite.
+model Invite {
+  id        String   @id @default(uuid()) @db.Uuid
+  orgId     String   @db.Uuid
+  name      String
+  /// 10-digit mobile; the account that accepts must have this phone.
+  phone     String
+  role      Role
+  /// Secret in the link (like Customer.portalToken). Not exported.
+  token     String   @unique
+  createdBy String?  @db.Uuid
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  /// One open invite per phone per mess (re-inviting replaces it).
+  @@unique([orgId, phone])
+  @@index([orgId])
 }
